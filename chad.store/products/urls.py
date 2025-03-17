@@ -1,15 +1,20 @@
-from django.urls import path
+from django.urls import path, include
 from products.views import ProductViewSet, ReviewViewSet, FavoriteProductViewSet, CartViewSet, TagList, ProductImageViewSet
+from rest_framework_nested import routers
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register('products', ProductViewSet)
+router.register('favorited_products', FavoriteProductViewSet)
+router.register('cart', CartViewSet)
+router.register('tags', TagList)
+router.register('reviews', ReviewViewSet)
+
+products_router = routers.NestedDefaultRouter(router, 'products', lookup='product')
+products_router.register('images', ProductImageViewSet, basename='product-images')
+
 
 urlpatterns = [
-    path('products/', ProductViewSet.as_view({'get':'list', 'post':'create'}), name="products"),
-    path('products/<int:pk>', ProductViewSet.as_view({'get':'retrieve', 'put':'update', 'patch':'partial_update'}), name='product'),
-    path('products/<int:product_id>/images/', ProductImageViewSet.as_view({'get':'list', 'post':'create', 'delete':'destroy'}), name="product-images"),
-    path('products/<int:product_id>/images/<int:pk>', ProductImageViewSet.as_view({'get':'retrieve', 'delete':'destroy'}), name="product-image"),
-    path('favorite_products/', FavoriteProductViewSet.as_view({'get':'list', 'post':'create', 'delete':'destroy'}), name='favorite_products'),
-    path('favorite_products/<int:pk>/', FavoriteProductViewSet.as_view({'get':'retrieve', 'delete':'destroy'}), name='favorite_product'),
-    path('products/<int:product_id>/reviews/<int:pk>', ReviewViewSet.as_view(), name="reviews"),
-    path('products/<int:product_id>/reviews/', ReviewViewSet.as_view(), name="review"),
-    path('cart/', CartViewSet.as_view(), name='cart'),
-    path('tags/', TagList.as_view(), name='tags')
+    path('', include(router.urls)),
+    path('', include(products_router.urls))
 ]
