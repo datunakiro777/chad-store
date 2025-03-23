@@ -36,7 +36,7 @@ class ProductViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin, Retriev
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['categories', 'price']
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def my_product(self, request):
         owned_products = request.user.owned_products.all()
         return owned_products
